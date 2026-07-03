@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Transaction History{% endblock %}
+{% block content %}
+
+<div class="topbar-inline">
+  <h1>Transaction History</h1>
+  <p>Full record of tools you've borrowed and returned</p>
+</div>
+
+<div class="card">
+  <div class="table-wrap">
+    <table class="data">
+      <thead>
+        <tr>
+          <th>Tool</th>
+          <th>Borrow Date</th>
+          <th>Borrow Time</th>
+          <th>Return Date</th>
+          <th>Return Time</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="history-body">
+        <tr><td colspan="6" class="empty-row">Loading…</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

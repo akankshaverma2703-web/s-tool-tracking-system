@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+
+<div class="topbar-inline">
+  <h1>Dashboard</h1>
+  <p>Overview of your tool activity</p>
+</div>
+
+<div class="welcome-card">
+  <div>
+    <h2>Welcome back, {{ name }} 👋</h2>
+    <p>Employee ID: {{ emp_id }}</p>
+  </div>
+  <span class="badge-id">{{ emp_id }}</span>
+</div>
+
+<div class="stat-grid">
+  <div class="stat-card">
+    <div class="label"><span class="ic">📦</span> Total Borrowed</div>
+    <div class="value" id="stat-total-borrowed">—</div>
+  </div>
+  <div class="stat-card warn">
+    <div class="label"><span class="ic">⏳</span> Pending Return</div>
+    <div class="value" id="stat-pending">—</div>
+  </div>
+  <div class="stat-card good">
+    <div class="label"><span class="ic">✅</span> Returned</div>
+    <div class="value" id="stat-returned">—</div>
+  </div>
+  <div class="stat-card">
+    <div class="label"><span class="ic">🧰</span> Available Tools</div>
+    <div class="value" id="stat-available">—</div>
+  </div>
+</div>
+
+{% endblock %}

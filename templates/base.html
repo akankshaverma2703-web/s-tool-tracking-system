@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Dashboard{% endblock %} — S-Tool Tracking</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <span class="dot"></span>
+      <span class="label">S-Tool Tracking</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a class="nav-item{{ ' active' if active=='dashboard' else '' }}" href="{{ url_for('dashboard') }}">
+        🏠 <span class="label">Dashboard</span>
+      </a>
+      <a class="nav-item{{ ' active' if active=='scan' else '' }}" href="{{ url_for('scan_center') }}">
+        📷 <span class="label">Scan Center</span>
+      </a>
+      <a class="nav-item{{ ' active' if active=='mytools' else '' }}" href="{{ url_for('my_tools_page') }}">
+        🧰 <span class="label">My Tools</span>
+      </a>
+      <a class="nav-item{{ ' active' if active=='history' else '' }}" href="{{ url_for('history_page') }}">
+        📜 <span class="label">Transaction History</span>
+      </a>
+      <a class="nav-item{{ ' active' if active=='profile' else '' }}" href="{{ url_for('profile_page') }}">
+        👤 <span class="label">Profile</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-foot">
+      <div class="sidebar-user">
+        <div class="avatar">{{ (name[0] | upper) if name else '?' }}</div>
+        <div class="meta">
+          {{ name }}<br>
+          <small>{{ emp_id }}</small>
+        </div>
+      </div>
+      <a class="logout-link" href="{{ url_for('logout') }}">⎋ <span class="label">Logout</span></a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="content">
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+
+</div>
+
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

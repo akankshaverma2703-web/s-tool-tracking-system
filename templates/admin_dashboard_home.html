@@ -1,0 +1,58 @@
+{% extends "admin_base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+
+<div class="topbar-inline">
+  <h1>Dashboard</h1>
+  <p>Tool tracking system overview</p>
+</div>
+
+<div class="welcome-card">
+  <div>
+    <h2>Welcome, {{ name }} 👋</h2>
+    <p>Here's what's happening across the inventory today.</p>
+  </div>
+</div>
+
+<div class="stat-grid stat-grid-5">
+  <div class="stat-card">
+    <div class="label"><span class="ic">👥</span> Total Employees</div>
+    <div class="value" id="stat-total-employees">—</div>
+  </div>
+  <div class="stat-card purple">
+    <div class="label"><span class="ic">🧰</span> Total Tools</div>
+    <div class="value" id="stat-total-tools">—</div>
+  </div>
+  <div class="stat-card warn">
+    <div class="label"><span class="ic">📦</span> Borrowed</div>
+    <div class="value" id="stat-borrowed">—</div>
+  </div>
+  <div class="stat-card good">
+    <div class="label"><span class="ic">✅</span> Returned</div>
+    <div class="value" id="stat-returned">—</div>
+  </div>
+  <div class="stat-card bad">
+    <div class="label"><span class="ic">⚠️</span> Overdue</div>
+    <div class="value" id="stat-overdue">—</div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-pad" style="padding-bottom:0;">
+    <h3 class="section-title">Recent Activity</h3>
+  </div>
+  <div class="table-wrap">
+    <table class="data">
+      <thead>
+        <tr>
+          <th>Employee</th><th>Tool</th><th>Borrow Date</th><th>Due Date</th><th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="dash-recent-body">
+        <tr><td colspan="5" class="empty-row">Loading…</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends "admin_base.html" %}
+{% block title %}Transactions{% endblock %}
+{% block content %}
+
+<div class="topbar-inline">
+  <h1>Transactions</h1>
+  <p>Every borrow and return, system-wide</p>
+</div>
+
+<div class="filter-bar">
+  <select id="filter-status">
+    <option value="">All Status</option>
+    <option value="Active">Borrowed (Active)</option>
+    <option value="Returned">Returned</option>
+    <option value="Overdue">Overdue</option>
+  </select>
+  <select id="filter-range">
+    <option value="">All Time</option>
+    <option value="today">Today</option>
+    <option value="week">This Week</option>
+    <option value="month">This Month</option>
+  </select>
+  <button class="btn btn-primary" id="btn-apply-filter">Apply</button>
+</div>
+
+<div class="card">
+  <div class="table-wrap">
+    <table class="data">
+      <thead>
+        <tr>
+          <th>Employee</th><th>Tool</th><th>Borrow Date</th><th>Borrow Time</th>
+          <th>Due Date</th><th>Return Date</th><th>Return Time</th><th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="transactions-body">
+        <tr><td colspan="8" class="empty-row">Loading…</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

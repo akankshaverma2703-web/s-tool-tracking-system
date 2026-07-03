@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}My Tools{% endblock %}
+{% block content %}
+
+<div class="topbar-inline">
+  <h1>My Tools</h1>
+  <p>Tools currently checked out to you</p>
+</div>
+
+<div class="card">
+  <div class="table-wrap">
+    <table class="data">
+      <thead>
+        <tr>
+          <th>Tool</th>
+          <th>Borrow Date</th>
+          <th>Borrow Time</th>
+          <th>Due Date</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="mytools-body">
+        <tr><td colspan="5" class="empty-row">Loading…</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

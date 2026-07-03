@@ -1,0 +1,29 @@
+{% extends "admin_base.html" %}
+{% block title %}Reports{% endblock %}
+{% block content %}
+
+<div class="topbar-inline">
+  <h1>Reports</h1>
+  <p>Export transaction data</p>
+</div>
+
+<div class="note-banner">
+  📊 PDF export uses your browser's print dialog for now. CSV export downloads all transactions currently matching no filter.
+</div>
+
+<div class="grid-2">
+  <div class="card card-pad">
+    <h3 class="section-title">Export as CSV</h3>
+    <p class="hint" style="margin-bottom:14px;">Download every transaction as a spreadsheet-friendly file.</p>
+    <button class="btn btn-primary" id="btn-export-csv" style="width:100%;justify-content:center;">Download CSV</button>
+  </div>
+  <div class="card card-pad">
+    <h3 class="section-title">Export as PDF</h3>
+    <p class="hint" style="margin-bottom:14px;">Opens the print dialog — choose "Save as PDF".</p>
+    <button class="btn btn-outline" id="btn-export-pdf" style="width:100%;justify-content:center;">Print / Save PDF</button>
+  </div>
+</div>
+
+<div id="report-message" class="message" style="display:none;"></div>
+
+{% endblock %}

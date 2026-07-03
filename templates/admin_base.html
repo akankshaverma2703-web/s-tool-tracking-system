@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Admin{% endblock %} — S-Tool Admin</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <span class="dot"></span>
+      <span class="label">S-Tool Admin</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a class="nav-item{{ ' active' if active=='dashboard' else '' }}" href="{{ url_for('admin_dashboard') }}">
+        🏠 <span class="label">Dashboard</span>
+      </a>
+      <a class="nav-item{{ ' active' if active=='employees' else '' }}" href="{{ url_for('admin_employees_page') }}">
+        👥 <span class="label">Employees</span>
+      </a>
+      <a class="nav-item{{ ' active' if active=='tools' else '' }}" href="{{ url_for('admin_tools_page') }}">
+        🧰 <span class="label">Tools</span>
+      </a>
+      <a class="nav-item{{ ' active' if active=='transactions' else '' }}" href="{{ url_for('admin_transactions_page') }}">
+        🔁 <span class="label">Transactions</span>
+      </a>
+      <a class="nav-item{{ ' active' if active=='reports' else '' }}" href="{{ url_for('admin_reports_page') }}">
+        📊 <span class="label">Reports</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-foot">
+      <div class="sidebar-user">
+        <div class="avatar">{{ (name[0] | upper) if name else 'A' }}</div>
+        <div class="meta">
+          {{ name }}<br>
+          <small>Administrator</small>
+        </div>
+      </div>
+      <a class="logout-link" href="{{ url_for('admin_logout') }}">⎋ <span class="label">Logout</span></a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="content">
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+
+</div>
+
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

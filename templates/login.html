@@ -1,32 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
   <title>Employee Login</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
 </head>
 <body>
-  <div class="card">
-    <h1>🏢 Employee Login</h1>
-    <p class="sub">Scan QR code on your ID card</p>
+  <div class="login-container">
+    <h1>🏢 Welcome Back</h1>
+    <p class="subtitle">S-Tool Tracking System</p>
 
-    <div id="reader" class="reader"></div>
-    <p id="scanStatus" class="scan-status">Starting camera...</p>
-
-    <div class="divider">— OR —</div>
-
-    <div class="manual-entry">
-      <p>Enter Employee ID manually</p>
-      <div style="display:flex; gap:8px; margin-top:8px;">
-        <input type="text" id="manualId" placeholder="e.g. EMP001" />
-        <button id="manualBtn">Login</button>
-      </div>
+    <div class="tabs">
+      <button class="tab-btn active" id="employeeTabBtn" onclick="switchTab('employee')">👤 Employee</button>
+      <button class="tab-btn" id="adminTabBtn" onclick="switchTab('admin')">🛡️ Admin</button>
     </div>
 
-    <div id="result" class="result hidden"></div>
+    <!-- EMPLOYEE TAB (QR based) -->
+    <div id="employeeTab" class="tab-content active">
+      <p class="scan-label">Scan QR code on your ID card</p>
+      <div id="reader"></div>
+      <p id="scanStatus" class="scan-status"></p>
+
+      <div class="manual-entry">
+        <p>— OR —</p>
+        <input type="text" id="manualId" placeholder="e.g. EMP001">
+        <button id="manualBtn">Login</button>
+      </div>
+
+      <div id="result" class="result"></div>
+    </div>
+
+    <!-- ADMIN TAB (username/password) -->
+    <div id="adminTab" class="tab-content">
+      <input type="text" id="adminUsername" placeholder="Username">
+      <input type="password" id="adminPassword" placeholder="Password">
+      <p class="forgot-link"><a href="#" onclick="showForgotInfo(); return false;">Forgot Password?</a></p>
+      <button id="adminLoginBtn">Login</button>
+      <div id="adminResult" class="result"></div>
+    </div>
   </div>
 
-  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
   <script src="{{ url_for('static', filename='js/login.js') }}"></script>
 </body>
+</html>

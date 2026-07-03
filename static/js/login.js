@@ -17,7 +17,7 @@ async function verifyLogin(employee_id) {
 
     if (result.success) {
       showResult(`✅ ${result.message}<br><small>Redirecting...</small>`, 'success');
-      setTimeout(() => { window.location.href = '/'; }, 1000);
+      setTimeout(() => { window.location.href = result.redirect || '/dashboard'; }, 1000);
     } else {
       showResult(`✗ ${result.message}`, 'error');
     }
@@ -80,3 +80,52 @@ document.getElementById('manualId').addEventListener('keypress', (e) => {
     document.getElementById('manualBtn').click();
   }
 });
+// ===== TAB SWITCHING =====
+function switchTab(tab) {
+  document.getElementById('employeeTabBtn').classList.toggle('active', tab === 'employee');
+  document.getElementById('adminTabBtn').classList.toggle('active', tab === 'admin');
+  document.getElementById('employeeTab').classList.toggle('active', tab === 'employee');
+  document.getElementById('adminTab').classList.toggle('active', tab === 'admin');
+}
+
+// ===== ADMIN LOGIN =====
+const adminResultDiv = document.getElementById('adminResult');
+
+function showAdminResult(html, type) {
+  adminResultDiv.innerHTML = html;
+  adminResultDiv.className = `result ${type}`;
+}
+
+document.getElementById('adminLoginBtn').addEventListener('click', async () => {
+  const username = document.getElementById('adminUsername').value.trim();
+  const password = document.getElementById('adminPassword').value;
+
+  if (!username || !password) {
+    showAdminResult('Please enter username and password.', 'error');
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/admin-login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password }),
+    });
+    const result = await res.json();
+
+    if (result.success) {
+      showAdminResult(`✅ ${result.message}`, 'success');
+      setTimeout(() => { window.location.href = result.redirect; }, 800);
+    } else {
+      showAdminResult(`✗ ${result.message}`, 'error');
+    }
+  } catch (err) {
+    showAdminResult('Server error. Please try again.', 'error');
+  }
+});
+function showForgotInfo() {
+  showAdminResult(
+    '🔒 Please contact the Super Admin / IT department to reset your password.',
+    'info'
+  );
+}

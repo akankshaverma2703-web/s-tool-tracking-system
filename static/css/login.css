@@ -60,3 +60,93 @@ button:hover { background: #2a7de1; }
 .result.info    { background: #eef5ff; color: #185fa5; border: 1px solid #b5d4f4; }
 .result.success { background: #eaf3de; color: #3b6d11; border: 1px solid #c0dd97; }
 .result.error   { background: #fcebeb; color: #a32d2d; border: 1px solid #f7c1c1; }
+.tabs {
+  display: flex;
+  margin: 20px 0;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  background: #f1f5f9;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.tab-btn.active {
+  background: #3b82f6;
+  color: white;
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+.subtitle {
+  text-align: center;
+  color: #64748b;
+  margin-bottom: 10px;
+}
+
+.scan-label {
+  text-align: center;
+  color: #475569;
+  margin-bottom: 10px;
+}
+
+.manual-entry {
+  margin-top: 16px;
+  text-align: center;
+}
+
+.manual-entry input {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+}
+
+#adminTab input {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+}
+
+#adminLoginBtn {
+  width: 100%;
+  padding: 12px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  margin-top: 10px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.forgot-link {
+  text-align: right;
+  margin: -6px 0 10px;
+}
+
+.forgot-link a {
+  font-size: 13px;
+  color: #3b82f6;
+  text-decoration: none;
+}
+
+.forgot-link a:hover {
+  text-decoration: underline;
+}

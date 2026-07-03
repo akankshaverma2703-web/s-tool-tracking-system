@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Scan Center{% endblock %}
+{% block content %}
+
+<div class="topbar-inline">
+  <h1>Scan Center</h1>
+  <p>Borrow or return a tool</p>
+</div>
+
+<div class="note-banner">
+  📷 Camera-based scanning (ID + tool QR) is coming in a future update. Use manual entry below for now.
+</div>
+
+<div class="grid-2">
+  <div class="card card-pad">
+    <h3 class="section-title">Borrow a tool</h3>
+    <label class="field-label" for="borrow-tool-select">Select tool</label>
+    <select id="borrow-tool-select"></select>
+    <button class="btn btn-primary" id="btn-borrow" style="margin-top:14px;width:100%;justify-content:center;">Borrow Tool</button>
+    <p class="hint">Default loan period: 3 days</p>
+  </div>
+
+  <div class="card card-pad">
+    <h3 class="section-title">Return a tool</h3>
+    <label class="field-label" for="return-tool-select">Select tool to return</label>
+    <select id="return-tool-select"></select>
+    <button class="btn btn-primary" id="btn-return" style="margin-top:14px;width:100%;justify-content:center;">Return Tool</button>
+  </div>
+</div>
+
+<div id="scan-message" class="message" style="display:none;"></div>
+
+{% endblock %}
