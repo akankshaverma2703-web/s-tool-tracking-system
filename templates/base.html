@@ -5,6 +5,35 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{% block title %}Dashboard{% endblock %} — S-Tool Tracking</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+<style>
+  .notif-wrap{position:relative;display:flex;justify-content:flex-end;margin-bottom:8px;}
+  .notif-bell-btn{
+    background:#fff;border:1px solid var(--border);border-radius:10px;
+    width:38px;height:38px;font-size:16px;cursor:pointer;position:relative;
+  }
+  .notif-badge{
+    position:absolute;top:-4px;right:-4px;background:var(--danger);color:#fff;
+    font-size:10px;font-weight:700;min-width:16px;height:16px;border-radius:8px;
+    display:flex;align-items:center;justify-content:center;padding:0 3px;
+  }
+  .notif-panel{
+    position:absolute;top:44px;right:0;width:320px;max-height:400px;overflow-y:auto;
+    background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);
+    display:none;z-index:50;
+  }
+  .notif-panel.open{display:block;}
+  .notif-panel-head{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:12px 14px;border-bottom:1px solid var(--border);font-weight:700;font-size:13px;
+  }
+  .notif-panel-head button{background:none;border:none;color:var(--blue-600);font-size:11.5px;cursor:pointer;font-weight:600;}
+  .notif-item{display:flex;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border);}
+  .notif-item.unread{background:var(--blue-100);}
+  .notif-ic{font-size:16px;}
+  .notif-msg{font-size:12.5px;font-weight:600;line-height:1.4;}
+  .notif-time{font-size:11px;color:var(--text-500);margin-top:2px;}
+  .notif-empty{padding:24px;text-align:center;color:var(--text-400);font-size:12.5px;}
+</style>
 </head>
 <body>
 
@@ -50,6 +79,18 @@
   <!-- MAIN -->
   <main class="main">
     <div class="content">
+      <div class="notif-wrap">
+        <button class="notif-bell-btn" id="notif-bell" data-role="employee">
+          🔔<span class="notif-badge" id="notif-badge" style="display:none;">0</span>
+        </button>
+        <div class="notif-panel" id="notif-panel">
+          <div class="notif-panel-head">
+            <span>Notifications</span>
+            <button id="notif-mark-all">Mark all read</button>
+          </div>
+          <div class="notif-list" id="notif-list"></div>
+        </div>
+      </div>
       {% block content %}{% endblock %}
     </div>
   </main>
@@ -57,6 +98,7 @@
 </div>
 
 <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+<script src="{{ url_for('static', filename='js/notifications.js') }}"></script>
 {% block scripts %}{% endblock %}
 </body>
 </html>

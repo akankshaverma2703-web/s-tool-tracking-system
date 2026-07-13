@@ -1,9 +1,18 @@
 const resultDiv  = document.getElementById('result');
 const scanStatus = document.getElementById('scanStatus');
+const scannerFrame = document.getElementById('scanner-frame');
 
 function showResult(html, type) {
   resultDiv.innerHTML = html;
   resultDiv.className = `result ${type}`;
+}
+
+function setScannerState(state, text) {
+  if (scannerFrame) scannerFrame.classList.remove('success', 'error');
+  if (scanStatus)   scanStatus.classList.remove('success', 'error');
+  if (state && scannerFrame) scannerFrame.classList.add(state);
+  if (state && scanStatus)   scanStatus.classList.add(state);
+  if (scanStatus && text) scanStatus.textContent = text;
 }
 
 async function verifyLogin(employee_id) {
@@ -16,12 +25,15 @@ async function verifyLogin(employee_id) {
     const result = await res.json();
 
     if (result.success) {
+      setScannerState('success', '✅ Login verified');
       showResult(`✅ ${result.message}<br><small>Redirecting...</small>`, 'success');
       setTimeout(() => { window.location.href = result.redirect || '/dashboard'; }, 1000);
     } else {
+      setScannerState('error', '✗ Login failed');
       showResult(`✗ ${result.message}`, 'error');
     }
   } catch (err) {
+    setScannerState('error', 'Server error');
     showResult('Server error. Please try again.', 'error');
     console.error(err);
   }
@@ -34,7 +46,7 @@ function onScanSuccess(decodedText) {
   qrScannerRunning = false;
 
   console.log('QR Decoded:', decodedText);
-  scanStatus.textContent = '✅ QR Code detected!';
+  setScannerState('success', '✅ QR Code detected!');
 
   let employee_id = decodedText.trim();
   try {
@@ -54,14 +66,14 @@ const html5QrCode = new Html5Qrcode("reader");
 
 html5QrCode.start(
   { facingMode: "environment" },
-  { fps: 10, qrbox: { width: 220, height: 220 } },
+  { fps: 10, qrbox: { width: 280, height: 280 } },
   onScanSuccess,
   onScanFailure
 ).then(() => {
-  scanStatus.textContent = 'Point QR code on ID card at camera';
+  setScannerState(null, 'Point QR code on ID card at camera');
 }).catch(err => {
   console.error('Camera start error:', err);
-  scanStatus.textContent = 'Camera unavailable — use manual entry below';
+  setScannerState('error', 'Camera unavailable — use manual entry below');
   showResult('Camera access denied. Please use manual entry.', 'error');
 });
 

@@ -21,6 +21,10 @@
       <div class="k">Employee ID</div>
       <div class="v">{{ emp_id }}</div>
     </div>
+    <div class="detail-item">
+      <div class="k">Department</div>
+      <div class="v">{{ department or '—' }}</div>
+    </div>
   </div>
 
   <a class="btn btn-primary" style="display:inline-flex;text-decoration:none;margin-top:20px;justify-content:center;width:100%;" href="{{ url_for('logout') }}">Logout</a>

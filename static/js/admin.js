@@ -23,6 +23,172 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ---------- DASHBOARD ----------
+  let chartBorrowTrend, chartStatusDist, chartTopTools, chartReturnTrend, chartMonthlyTxns;
+
+  function destroyChart(chart) {
+    if (chart) chart.destroy();
+  }
+
+  function renderBorrowTrendChart(transactions) {
+    const canvas = document.getElementById('chart-borrow-trend');
+    if (!canvas || typeof Chart === 'undefined') return;
+
+    const days = [];
+    const counts = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const key = d.toISOString().slice(0, 10);
+      days.push(key.slice(5));
+      counts.push(transactions.filter(t => t.borrow_date === key).length);
+    }
+
+    destroyChart(chartBorrowTrend);
+    chartBorrowTrend = new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels: days,
+        datasets: [{
+          label: 'Tools Borrowed',
+          data: counts,
+          borderColor: '#3d5afe',
+          backgroundColor: 'rgba(61,90,254,0.12)',
+          tension: 0.35,
+          fill: true,
+          pointRadius: 4,
+          pointBackgroundColor: '#3d5afe'
+        }]
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+      }
+    });
+  }
+
+  function renderReturnTrendChart(transactions) {
+    const canvas = document.getElementById('chart-return-trend');
+    if (!canvas || typeof Chart === 'undefined') return;
+
+    const days = [];
+    const counts = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const key = d.toISOString().slice(0, 10);
+      days.push(key.slice(5));
+      counts.push(transactions.filter(t => t.return_date === key).length);
+    }
+
+    destroyChart(chartReturnTrend);
+    chartReturnTrend = new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels: days,
+        datasets: [{
+          label: 'Tools Returned',
+          data: counts,
+          borderColor: '#16a34a',
+          backgroundColor: 'rgba(22,163,74,0.12)',
+          tension: 0.35,
+          fill: true,
+          pointRadius: 4,
+          pointBackgroundColor: '#16a34a'
+        }]
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+      }
+    });
+  }
+
+  function renderStatusDistChart(stats) {
+    const canvas = document.getElementById('chart-status-dist');
+    if (!canvas || typeof Chart === 'undefined' || !stats) return;
+
+    destroyChart(chartStatusDist);
+    chartStatusDist = new Chart(canvas, {
+      type: 'doughnut',
+      data: {
+        labels: ['Active', 'Returned', 'Overdue'],
+        datasets: [{
+          data: [stats.borrowed, stats.returned, stats.overdue],
+          backgroundColor: ['#3d5afe', '#16a34a', '#dc2626'],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        plugins: { legend: { position: 'bottom' } },
+        cutout: '65%'
+      }
+    });
+  }
+
+  function renderMonthlyTxnsChart(transactions) {
+    const canvas = document.getElementById('chart-monthly-txns');
+    if (!canvas || typeof Chart === 'undefined') return;
+
+    const months = [];
+    const labels = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date();
+      d.setMonth(d.getMonth() - i);
+      const key = d.toISOString().slice(0, 7); // YYYY-MM
+      months.push(key);
+      labels.push(d.toLocaleString('default', { month: 'short', year: '2-digit' }));
+    }
+    const counts = months.map(m => transactions.filter(t => (t.borrow_date || '').startsWith(m)).length);
+
+    destroyChart(chartMonthlyTxns);
+    chartMonthlyTxns = new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Transactions',
+          data: counts,
+          backgroundColor: '#3d5afe',
+          borderRadius: 6,
+          maxBarThickness: 46
+        }]
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+      }
+    });
+  }
+
+  function renderTopToolsChart(transactions) {
+    const canvas = document.getElementById('chart-top-tools');
+    if (!canvas || typeof Chart === 'undefined') return;
+
+    const counts = {};
+    transactions.forEach(t => { counts[t.tool_name] = (counts[t.tool_name] || 0) + 1; });
+    const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 6);
+
+    destroyChart(chartTopTools);
+    chartTopTools = new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels: sorted.map(s => s[0]),
+        datasets: [{
+          label: 'Times Borrowed',
+          data: sorted.map(s => s[1]),
+          backgroundColor: '#5470ff',
+          borderRadius: 6,
+          maxBarThickness: 40
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        plugins: { legend: { display: false } },
+        scales: { x: { beginAtZero: true, ticks: { precision: 0 } } }
+      }
+    });
+  }
+
   async function loadSummary() {
     const data = await api('/api/admin/summary');
     if (!data.success) return;
@@ -34,6 +200,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const txns = await api('/api/admin/transactions');
     const tbody = document.getElementById('dash-recent-body');
+
+    if (txns.success && txns.transactions.length) {
+      renderBorrowTrendChart(txns.transactions);
+      renderReturnTrendChart(txns.transactions);
+      renderMonthlyTxnsChart(txns.transactions);
+      renderTopToolsChart(txns.transactions);
+    }
+    renderStatusDistChart(data.stats);
+
     if (!tbody) return;
     if (txns.success && txns.transactions.length) {
       tbody.innerHTML = txns.transactions.slice(0, 6).map(t => `
@@ -68,7 +243,7 @@ document.addEventListener('DOMContentLoaded', () => {
   async function loadTools() {
     const tbody = document.getElementById('tools-body');
     if (!tbody) return;
-    tbody.innerHTML = `<tr><td colspan="5" class="empty-row">Loading…</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6" class="empty-row">Loading…</td></tr>`;
     const data = await api('/api/admin/tools');
     if (data.success && data.tools.length) {
       tbody.innerHTML = data.tools.map(t => `
@@ -77,10 +252,14 @@ document.addEventListener('DOMContentLoaded', () => {
           <td>${t.tool_name}</td>
           <td>${dash(t.category)}</td>
           <td>${badge(t.status)}</td>
+          <td>
+            <code>${dash(t.qr_code)}</code>
+            <a class="btn btn-outline btn-sm" href="/api/admin/tools/${t.tool_id}/qr" target="_blank" style="margin-left:6px;">View / Print</a>
+          </td>
           <td><button class="btn btn-danger btn-sm" data-delete-tool="${t.tool_id}">Delete</button></td>
         </tr>`).join('');
     } else {
-      tbody.innerHTML = `<tr><td colspan="5" class="empty-row">No tools yet — add one above.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6" class="empty-row">No tools yet — add one above.</td></tr>`;
     }
   }
 
@@ -90,12 +269,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const tool_name = document.getElementById('tool-name-input').value.trim();
       const category  = document.getElementById('tool-category-input').value.trim();
       const total_qty = document.getElementById('tool-qty-input').value.trim() || 1;
+      const qr_code   = document.getElementById('tool-qrcode-input')?.value.trim() || '';
 
       if (!tool_name) return showMessage('tool-message', 'Tool name is required.', true);
 
       const res = await api('/api/admin/tools', {
         method: 'POST',
-        body: JSON.stringify({ tool_name, category, total_qty })
+        body: JSON.stringify({ tool_name, category, total_qty, qr_code })
       });
 
       if (res.success) {
@@ -103,6 +283,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('tool-name-input').value = '';
         document.getElementById('tool-category-input').value = '';
         document.getElementById('tool-qty-input').value = '';
+        if (document.getElementById('tool-qrcode-input')) document.getElementById('tool-qrcode-input').value = '';
         loadTools();
       } else {
         showMessage('tool-message', res.message || 'Could not add tool.', true);
@@ -124,10 +305,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ---------- TRANSACTIONS ----------
-  async function loadTransactions() {
+ async function loadTransactions() {
     const tbody = document.getElementById('transactions-body');
     if (!tbody) return;
-    tbody.innerHTML = `<tr><td colspan="8" class="empty-row">Loading…</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="9" class="empty-row">Loading…</td></tr>`;
 
     const status = document.getElementById('filter-status')?.value || '';
     const range  = document.getElementById('filter-range')?.value || '';
@@ -141,6 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
       tbody.innerHTML = data.transactions.map(t => `
         <tr>
           <td>${t.employee_name} (${t.employee_id})</td>
+          <td>${dash(t.department)}</td>
           <td>${t.tool_name}</td>
           <td>${dash(t.borrow_date)}</td>
           <td>${dash(t.borrow_time)}</td>
@@ -150,12 +332,9 @@ document.addEventListener('DOMContentLoaded', () => {
           <td>${badge(t.status)}</td>
         </tr>`).join('');
     } else {
-      tbody.innerHTML = `<tr><td colspan="8" class="empty-row">No matching transactions.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="9" class="empty-row">No matching transactions.</td></tr>`;
     }
   }
-
-  const btnApplyFilter = document.getElementById('btn-apply-filter');
-  if (btnApplyFilter) btnApplyFilter.addEventListener('click', loadTransactions);
 
   // ---------- REPORTS / EXPORT ----------
   const btnExportCsv = document.getElementById('btn-export-csv');

@@ -37,7 +37,34 @@
   </div>
 </div>
 
-<div class="card">
+<div class="grid-2">
+  <div class="card card-pad">
+    <h3 class="section-title">Borrow Trend (Last 7 Days)</h3>
+    <canvas id="chart-borrow-trend" height="220"></canvas>
+  </div>
+  <div class="card card-pad">
+    <h3 class="section-title">Return Trend (Last 7 Days)</h3>
+    <canvas id="chart-return-trend" height="220"></canvas>
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="card card-pad">
+    <h3 class="section-title">Status Distribution</h3>
+    <canvas id="chart-status-dist" height="220"></canvas>
+  </div>
+  <div class="card card-pad">
+    <h3 class="section-title">Monthly Transactions (Last 6 Months)</h3>
+    <canvas id="chart-monthly-txns" height="220"></canvas>
+  </div>
+</div>
+
+<div class="card card-pad">
+  <h3 class="section-title">Most Used Tools</h3>
+  <canvas id="chart-top-tools" height="140"></canvas>
+</div>
+
+<div class="card" style="margin-top:20px;">
   <div class="card-pad" style="padding-bottom:0;">
     <h3 class="section-title">Recent Activity</h3>
   </div>
@@ -55,4 +82,8 @@
   </div>
 </div>
 
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 {% endblock %}

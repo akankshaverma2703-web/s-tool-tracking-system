@@ -4,6 +4,69 @@
   <meta charset="UTF-8">
   <title>Employee Login</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+  <style>
+    .scanner-viewport {
+      position: relative;
+      overflow: hidden;
+      border-radius: 12px;
+      background: #000;
+    }
+
+    .scanner-frame {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 70%;
+      aspect-ratio: 1 / 1;
+      max-width: 240px;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      border: 2px solid rgba(59, 130, 246, 0.4);
+      border-radius: 10px;
+      transition: border-color 0.25s ease;
+    }
+    .scanner-frame.success { border-color: #22c55e; }
+    .scanner-frame.error   { border-color: #ef4444; }
+
+    .corner {
+      position: absolute;
+      width: 26px;
+      height: 26px;
+      border: 3px solid #3b82f6;
+      transition: border-color 0.25s ease;
+    }
+    .scanner-frame.success .corner { border-color: #22c55e; }
+    .scanner-frame.error   .corner { border-color: #ef4444; }
+
+    .corner.tl { top: -2px; left: -2px; border-right: none; border-bottom: none; border-radius: 6px 0 0 0; }
+    .corner.tr { top: -2px; right: -2px; border-left: none; border-bottom: none; border-radius: 0 6px 0 0; }
+    .corner.bl { bottom: -2px; left: -2px; border-right: none; border-top: none; border-radius: 0 0 0 6px; }
+    .corner.br { bottom: -2px; right: -2px; border-left: none; border-top: none; border-radius: 0 0 6px 0; }
+
+    .scan-line {
+      position: absolute;
+      left: 4%;
+      right: 4%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #3b82f6, transparent);
+      box-shadow: 0 0 8px 1px rgba(59,130,246,0.7);
+      animation: scan-line-move 1.8s ease-in-out infinite;
+    }
+    .scanner-frame.success .scan-line,
+    .scanner-frame.error .scan-line {
+      animation-play-state: paused;
+      opacity: 0;
+    }
+
+    @keyframes scan-line-move {
+      0%   { top: 4%; }
+      50%  { top: 94%; }
+      100% { top: 4%; }
+    }
+
+    .scan-status.success { color: #16a34a; }
+    .scan-status.error   { color: #dc2626; }
+  </style>
 </head>
 <body>
   <div class="login-container">
@@ -18,7 +81,18 @@
     <!-- EMPLOYEE TAB (QR based) -->
     <div id="employeeTab" class="tab-content active">
       <p class="scan-label">Scan QR code on your ID card</p>
-      <div id="reader"></div>
+
+      <div class="scanner-viewport" id="scanner-viewport">
+        <div id="reader"></div>
+        <div class="scanner-frame" id="scanner-frame">
+          <span class="corner tl"></span>
+          <span class="corner tr"></span>
+          <span class="corner bl"></span>
+          <span class="corner br"></span>
+          <div class="scan-line"></div>
+        </div>
+      </div>
+
       <p id="scanStatus" class="scan-status"></p>
 
       <div class="manual-entry">

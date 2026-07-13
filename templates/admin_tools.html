@@ -19,6 +19,9 @@
   <label class="field-label" style="margin-top:14px;" for="tool-qty-input">Total Quantity</label>
   <input type="text" id="tool-qty-input" placeholder="e.g. 1">
 
+  <label class="field-label" style="margin-top:14px;" for="tool-qrcode-input">QR Code <span style="opacity:.6;">(optional — auto-generated if left blank)</span></label>
+  <input type="text" id="tool-qrcode-input" placeholder="e.g. HAMMER001">
+
   <button class="btn btn-primary" id="btn-add-tool" style="margin-top:16px;width:100%;justify-content:center;">Add Tool</button>
   <div id="tool-message" class="message" style="display:none;"></div>
 </div>
@@ -27,10 +30,10 @@
   <div class="table-wrap">
     <table class="data">
       <thead>
-        <tr><th>Tool ID</th><th>Name</th><th>Category</th><th>Status</th><th>Action</th></tr>
-      </thead>
+  <tr><th>Tool ID</th><th>Name</th><th>Category</th><th>Status</th><th>QR Code</th><th>Action</th></tr>
+</thead>
       <tbody id="tools-body">
-        <tr><td colspan="5" class="empty-row">Loading…</td></tr>
+        <tr><td colspan="6" class="empty-row">Loading…</td></tr>
       </tbody>
     </table>
   </div>

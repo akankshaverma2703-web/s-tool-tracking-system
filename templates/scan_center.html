@@ -4,30 +4,131 @@
 
 <div class="topbar-inline">
   <h1>Scan Center</h1>
-  <p>Borrow or return a tool</p>
+  <p>Scan a tool's QR code to borrow or return it</p>
 </div>
 
 <div class="note-banner">
-  📷 Camera-based scanning (ID + tool QR) is coming in a future update. Use manual entry below for now.
+  📷 Point your camera at the QR code stuck on the tool. Manual selection is available below as a backup.
 </div>
 
 <div class="grid-2">
   <div class="card card-pad">
     <h3 class="section-title">Borrow a tool</h3>
-    <label class="field-label" for="borrow-tool-select">Select tool</label>
+
+    <label class="field-label" for="borrow-qty-input">Quantity</label>
+    <input type="number" id="borrow-qty-input" min="1" value="1" style="margin-bottom:14px;">
+
+    <button class="btn btn-primary" id="btn-scan-borrow" style="width:100%;justify-content:center;">📷 Scan QR to Borrow</button>
+    <hr style="border:none;border-top:1px solid var(--border);margin:16px 0;">
+    <label class="field-label" for="borrow-tool-select">Or select manually</label>
     <select id="borrow-tool-select"></select>
-    <button class="btn btn-primary" id="btn-borrow" style="margin-top:14px;width:100%;justify-content:center;">Borrow Tool</button>
-    <p class="hint">Default loan period: 3 days</p>
+    <button class="btn btn-outline" id="btn-borrow" style="margin-top:10px;width:100%;justify-content:center;">Borrow Tool</button>
+    <p class="hint">Default loan period: 5 days</p>
   </div>
 
   <div class="card card-pad">
     <h3 class="section-title">Return a tool</h3>
-    <label class="field-label" for="return-tool-select">Select tool to return</label>
+    <button class="btn btn-primary" id="btn-scan-return" style="width:100%;justify-content:center;">📷 Scan QR to Return</button>
+    <hr style="border:none;border-top:1px solid var(--border);margin:16px 0;">
+    <label class="field-label" for="return-tool-select">Or select manually</label>
     <select id="return-tool-select"></select>
-    <button class="btn btn-primary" id="btn-return" style="margin-top:14px;width:100%;justify-content:center;">Return Tool</button>
+    <button class="btn btn-outline" id="btn-return" style="margin-top:10px;width:100%;justify-content:center;">Return Tool</button>
   </div>
+</div>
+
+<div class="card card-pad" id="qr-reader-wrap" style="display:none;max-width:420px;margin-top:18px;">
+  <h3 class="section-title" id="qr-reader-title">Scanning…</h3>
+
+  <div class="scanner-viewport" id="scanner-viewport">
+    <div id="qr-reader" style="width:100%;"></div>
+    <div class="scanner-frame">
+      <span class="corner tl"></span>
+      <span class="corner tr"></span>
+      <span class="corner bl"></span>
+      <span class="corner br"></span>
+      <div class="scan-line"></div>
+    </div>
+  </div>
+
+  <p class="scan-status" id="scan-status">Scanning…</p>
+
+  <button class="btn btn-outline" id="btn-stop-scan" style="margin-top:14px;width:100%;justify-content:center;">Cancel Scan</button>
 </div>
 
 <div id="scan-message" class="message" style="display:none;"></div>
 
+{% endblock %}
+
+{% block scripts %}
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+<style>
+  .scanner-viewport {
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+    background: #000;
+  }
+
+  .scanner-frame {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 70%;
+    aspect-ratio: 1 / 1;
+    max-width: 260px;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    border: 2px solid rgba(59, 130, 246, 0.4);
+    border-radius: 10px;
+    transition: border-color 0.25s ease;
+  }
+  .scanner-frame.success { border-color: #22c55e; }
+  .scanner-frame.error   { border-color: #ef4444; }
+
+  .corner {
+    position: absolute;
+    width: 26px;
+    height: 26px;
+    border: 3px solid #3b82f6;
+    transition: border-color 0.25s ease;
+  }
+  .scanner-frame.success .corner { border-color: #22c55e; }
+  .scanner-frame.error   .corner { border-color: #ef4444; }
+
+  .corner.tl { top: -2px; left: -2px; border-right: none; border-bottom: none; border-radius: 6px 0 0 0; }
+  .corner.tr { top: -2px; right: -2px; border-left: none; border-bottom: none; border-radius: 0 6px 0 0; }
+  .corner.bl { bottom: -2px; left: -2px; border-right: none; border-top: none; border-radius: 0 0 0 6px; }
+  .corner.br { bottom: -2px; right: -2px; border-left: none; border-top: none; border-radius: 0 0 6px 0; }
+
+  .scan-line {
+    position: absolute;
+    left: 4%;
+    right: 4%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #3b82f6, transparent);
+    box-shadow: 0 0 8px 1px rgba(59,130,246,0.7);
+    animation: scan-line-move 1.8s ease-in-out infinite;
+  }
+  .scanner-frame.success .scan-line,
+  .scanner-frame.error .scan-line {
+    animation-play-state: paused;
+    opacity: 0;
+  }
+
+  @keyframes scan-line-move {
+    0%   { top: 4%; }
+    50%  { top: 94%; }
+    100% { top: 4%; }
+  }
+
+  .scan-status {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-500, #64748b);
+  }
+  .scan-status.success { color: #16a34a; }
+  .scan-status.error   { color: #dc2626; }
+</style>
 {% endblock %}

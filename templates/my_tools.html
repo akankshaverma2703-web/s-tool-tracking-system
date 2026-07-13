@@ -2,28 +2,67 @@
 {% block title %}My Tools{% endblock %}
 {% block content %}
 
+<style>
+  .tools-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+    gap:16px;
+  }
+  .tool-card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:18px 20px;
+    transition:transform .15s, box-shadow .15s;
+  }
+  .tool-card:hover{
+    transform:translateY(-2px);
+    box-shadow:0 12px 28px -14px rgba(16,21,58,.2);
+  }
+  .tool-card-head{
+    display:flex;align-items:center;gap:12px;
+    margin-bottom:14px;
+  }
+  .tool-card-icon{
+    width:42px;height:42px;border-radius:11px;
+    background:var(--blue-100);
+    display:flex;align-items:center;justify-content:center;
+    font-size:19px;flex-shrink:0;
+  }
+  .tool-card-name{font-size:14.5px;font-weight:700;line-height:1.3;}
+  .tool-card-meta{font-size:12px;color:var(--text-500);margin-top:2px;}
+  .tool-card-rows{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;}
+  .tool-card-row{
+    display:flex;justify-content:space-between;
+    font-size:12.8px;
+  }
+  .tool-card-row .k{color:var(--text-500);font-weight:600;}
+  .tool-card-row .v{font-weight:600;}
+  .tool-card-foot{
+    display:flex;align-items:center;justify-content:space-between;
+    padding-top:12px;border-top:1px solid var(--border);
+  }
+
+  .due-alert{
+    font-size:11.5px;
+    font-weight:700;
+    padding:6px 10px;
+    border-radius:8px;
+    margin-bottom:12px;
+    display:inline-block;
+  }
+  .due-soon{background:var(--warning-bg);color:var(--warning);}
+  .due-overdue{background:var(--danger-bg);color:var(--danger);}
+</style>
+
 <div class="topbar-inline">
   <h1>My Tools</h1>
   <p>Tools currently checked out to you</p>
 </div>
 
-<div class="card">
-  <div class="table-wrap">
-    <table class="data">
-      <thead>
-        <tr>
-          <th>Tool</th>
-          <th>Borrow Date</th>
-          <th>Borrow Time</th>
-          <th>Due Date</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody id="mytools-body">
-        <tr><td colspan="5" class="empty-row">Loading…</td></tr>
-      </tbody>
-    </table>
-  </div>
+<div class="tools-grid" id="mytools-body">
+  <div class="empty-row">Loading…</div>
 </div>
 
 {% endblock %}
