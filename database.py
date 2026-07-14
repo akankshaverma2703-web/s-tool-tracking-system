@@ -329,11 +329,39 @@ def get_employee_stats(employee_id):
 def get_all_employees():
     conn   = get_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT employee_id, name, contact_no FROM employees ORDER BY name")
+    cursor.execute("SELECT employee_id, name, company_name, contact_no, email FROM employees ORDER BY name")
     result = cursor.fetchall()
     cursor.close()
     conn.close()
     return result
+
+
+def add_employee(employee_id, name, company_name=None, contact_no=None, email=None):
+    """Inserts a new employee. Returns (success, message).
+    Raises no exception on duplicate employee_id — instead returns
+    (False, "...") so the route can show a friendly error."""
+    employee_id = (employee_id or "").strip()
+    name        = (name or "").strip()
+
+    if not employee_id or not name:
+        return False, "Employee ID and name are required."
+
+    conn   = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(
+            """INSERT INTO employees (employee_id, name, company_name, contact_no, email)
+               VALUES (%s, %s, %s, %s, %s)""",
+            (employee_id, name, company_name or None, contact_no or None, email or None)
+        )
+        conn.commit()
+        return True, "Employee added successfully."
+    except mysql.connector.IntegrityError:
+        conn.rollback()
+        return False, f"Employee ID '{employee_id}' already exists."
+    finally:
+        cursor.close()
+        conn.close()
 
 
 def get_admin_stats():
@@ -373,7 +401,7 @@ def get_all_transactions(status_filter=None, date_filter=None):
     cursor = conn.cursor(dictionary=True)
 
     query = """
-        SELECT t.transaction_id, e.employee_id, e.name AS employee_name, e.department,
+        SELECT t.transaction_id, e.employee_id, e.name AS employee_name, e.company_name,
                tl.tool_name, t.borrow_date, t.borrow_time,
                t.return_date, t.return_time, t.due_date, t.status
         FROM transactions t

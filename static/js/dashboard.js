@@ -184,7 +184,7 @@ const btnBorrow = document.getElementById('btn-borrow');
   // ---------- QR CAMERA SCANNER ----------
   let html5QrCode = null;
   let scanMode = null;   // 'borrow' | 'return'
-  let scanLocked = false; // prevents multiple decode fires while success animation plays
+  let scanLocked = false; // prevents multiple decode fires while countdown/verification runs
 
   function setScannerState(state, text) {
     const frame  = document.querySelector('.scanner-frame');
@@ -206,6 +206,19 @@ const btnBorrow = document.getElementById('btn-borrow');
     }
   }
 
+  function captureFrameAsBase64() {
+    // html5-qrcode renders an internal <video> element inside #qr-reader
+    const video = document.querySelector('#qr-reader video');
+    if (!video || !video.videoWidth) return null;
+
+    const canvas = document.createElement('canvas');
+    canvas.width  = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    return canvas.toDataURL('image/jpeg', 0.8);
+  }
+
   function startScanner(mode) {
     scanMode = mode;
     scanLocked = false;
@@ -215,21 +228,16 @@ const btnBorrow = document.getElementById('btn-borrow');
     wrap.style.display = 'block';
     title.textContent = mode === 'borrow' ? 'Scan QR to Borrow' : 'Scan QR to Return';
     setScannerState(null, 'Scanning…');
+    hideToolInfo();
 
     html5QrCode = new Html5Qrcode("qr-reader");
     html5QrCode.start(
       { facingMode: "environment" },
       { fps: 10, qrbox: 280 },
       (decodedText) => {
-        if (scanLocked) return;   // ignore extra frames while we're mid-animation
+        if (scanLocked) return;   // ignore extra frames while countdown/verification runs
         scanLocked = true;
-        setScannerState('success', 'QR Detected ✔');
-        setTimeout(() => {
-          stopScanner();
-          // decodedText is the qr_code string (e.g. "HAMMER001") stuck on the tool.
-          // Backend resolves this to the real tool_id — logic unchanged.
-          handleScanResult(decodedText.trim());
-        }, 600);
+        startVerificationCountdown(decodedText.trim());
       },
       () => { /* ignore per-frame decode misses */ }
     ).catch(err => {
@@ -239,7 +247,90 @@ const btnBorrow = document.getElementById('btn-borrow');
     });
   }
 
- function handleScanResult(scannedValue) {
+  // ---------- MODULE 2: TOOL IDENTIFICATION ----------
+  function showToolInfo(tool) {
+    const card = document.getElementById('tool-info-card');
+    const nameEl = document.getElementById('tool-info-name');
+    const statusEl = document.getElementById('tool-info-status');
+    if (!card) return;
+    nameEl.textContent = tool.tool_name;
+    statusEl.textContent = `${tool.status} · ${tool.available_qty} available`;
+    card.style.display = 'block';
+  }
+
+  function hideToolInfo() {
+    const card = document.getElementById('tool-info-card');
+    if (card) card.style.display = 'none';
+  }
+
+  // ---------- MODULE 3: GIVE THE EMPLOYEE TIME TO SHOW THE PHYSICAL TOOL ----------
+  function startVerificationCountdown(scannedValue) {
+    // QR is read and the camera stays LIVE for a few seconds so the
+    // employee can move the actual tool into frame before we capture it.
+    fetch('/api/tool-lookup?qr_code=' + encodeURIComponent(scannedValue))
+      .then(r => r.json())
+      .then(lookup => {
+        if (lookup.success) showToolInfo(lookup);
+      })
+      .catch(() => {});
+
+    setScannerState('success', 'QR Detected ✔');
+
+    let secondsLeft = 10;
+    const tick = () => {
+      setScannerState('success', `Show the tool to the camera… ${secondsLeft}`);
+      const statusEl = document.getElementById('tool-info-status');
+      if (statusEl) statusEl.textContent = `Hold the tool up — capturing in ${secondsLeft}s`;
+      secondsLeft--;
+      if (secondsLeft >= 0) {
+        setTimeout(tick, 1000);
+      } else {
+        finishScanAndVerify(scannedValue);
+      }
+    };
+    tick();
+  }
+
+  // ---------- MODULE 4-5: CAPTURE + STOP CAMERA + YOLO VERIFY ----------
+  function finishScanAndVerify(scannedValue) {
+    const imageFrame = captureFrameAsBase64();
+    stopScanner();
+
+    setScannerState(null, '🔍 Verifying with AI…');
+    const statusEl = document.getElementById('tool-info-status');
+    if (statusEl) statusEl.textContent = 'Verifying tool with AI…';
+
+    fetch('/api/verify-tool', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ qr_code: scannedValue, image: imageFrame })
+    })
+      .then(r => r.json())
+      .then(result => {
+        if (!result.success) {
+          showMessage(result.message, true);
+          hideToolInfo();
+          return;
+        }
+        if (!result.matched) {
+          const detected = result.detected_class ? ` (camera saw: ${result.detected_class})` : '';
+          showMessage(result.message + detected, true);
+          hideToolInfo();
+          return;
+        }
+        if (result.detected_class) {
+          showMessage(`✔ AI verified: ${result.detected_class}`, false);
+        }
+        proceedWithBorrowReturn(scannedValue);
+      })
+      .catch(() => {
+        // Network/verify error — fail safe to the old QR-only behaviour
+        proceedWithBorrowReturn(scannedValue);
+      });
+  }
+
+  // ---------- MODULE 6-8: BORROW / RETURN + INVENTORY + HISTORY ----------
+  function proceedWithBorrowReturn(scannedValue) {
     const url = scanMode === 'borrow' ? '/api/borrow' : '/api/return';
     const qty = scanMode === 'borrow'
       ? (parseInt(document.getElementById('borrow-qty-input')?.value, 10) || 1)
@@ -253,6 +344,7 @@ const btnBorrow = document.getElementById('btn-borrow');
       .then(data => {
         showMessage(data.message, !data.success);
         if (data.success) loadToolDropdowns();
+        hideToolInfo();
       });
   }
 
@@ -263,7 +355,7 @@ const btnBorrow = document.getElementById('btn-borrow');
   if (btnScanReturn) btnScanReturn.addEventListener('click', () => startScanner('return'));
 
   const btnStopScan = document.getElementById('btn-stop-scan');
-  if (btnStopScan) btnStopScan.addEventListener('click', stopScanner);
+  if (btnStopScan) btnStopScan.addEventListener('click', () => { stopScanner(); hideToolInfo(); });
 
   // ---------- LOAD WHATEVER THIS PAGE NEEDS ----------
   if (document.getElementById('stat-total-borrowed')) loadStats();

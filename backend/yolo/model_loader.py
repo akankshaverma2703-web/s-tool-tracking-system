@@ -1,8 +1,8 @@
+
 import os
 
 _model = None
-MODEL_PATH = os.path.join(os.path.dirname(__file__), '..', '..', 'runs', 'detect', 'train', 'weights', 'best.pt')
-
+MODEL_PATH = os.path.join(os.path.dirname(__file__), '..', '..', 'models', 'best.pt')
 
 def get_model():
     """Returns the loaded YOLO model, loading it from disk on first call."""

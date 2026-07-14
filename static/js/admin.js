@@ -228,15 +228,52 @@ document.addEventListener('DOMContentLoaded', () => {
   async function loadEmployees() {
     const tbody = document.getElementById('employees-body');
     if (!tbody) return;
-    tbody.innerHTML = `<tr><td colspan="3" class="empty-row">Loading…</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="5" class="empty-row">Loading…</td></tr>`;
     const data = await api('/api/admin/employees');
     if (data.success && data.employees.length) {
       tbody.innerHTML = data.employees.map(e => `
-        <tr><td>${e.employee_id}</td><td>${e.name}</td><td>${dash(e.contact_no)}</td></tr>
+        <tr>
+          <td>${e.employee_id}</td>
+          <td>${e.name}</td>
+          <td>${dash(e.company_name)}</td>
+          <td>${dash(e.contact_no)}</td>
+          <td>${dash(e.email)}</td>
+        </tr>
       `).join('');
     } else {
-      tbody.innerHTML = `<tr><td colspan="3" class="empty-row">No employees found.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="5" class="empty-row">No employees found.</td></tr>`;
     }
+  }
+
+  const btnAddEmployee = document.getElementById('btn-add-employee');
+  if (btnAddEmployee) {
+    btnAddEmployee.addEventListener('click', async () => {
+      const employee_id = document.getElementById('employee-id-input').value.trim();
+      const name         = document.getElementById('employee-name-input').value.trim();
+      const company_name  = document.getElementById('employee-company_name-input')?.value.trim() || '';
+      const contact_no    = document.getElementById('employee-contact-input')?.value.trim() || '';
+      const email          = document.getElementById('employee-email-input')?.value.trim() || '';
+
+      if (!employee_id) return showMessage('employee-message', 'Employee ID is required.', true);
+      if (!name)         return showMessage('employee-message', 'Name is required.', true);
+
+      const res = await api('/api/admin/employees', {
+        method: 'POST',
+        body: JSON.stringify({ employee_id, name, company_name, contact_no, email })
+      });
+
+      if (res.success) {
+        showMessage('employee-message', 'Employee added.', false);
+        document.getElementById('employee-id-input').value = '';
+        document.getElementById('employee-name-input').value = '';
+        if (document.getElementById('employee-company_name-input')) document.getElementById('employee-company_name-input').value = '';
+        if (document.getElementById('employee-contact-input')) document.getElementById('employee-contact-input').value = '';
+        if (document.getElementById('employee-email-input')) document.getElementById('employee-email-input').value = '';
+        loadEmployees();
+      } else {
+        showMessage('employee-message', res.message || 'Could not add employee.', true);
+      }
+    });
   }
 
   // ---------- TOOLS ----------
@@ -322,7 +359,7 @@ document.addEventListener('DOMContentLoaded', () => {
       tbody.innerHTML = data.transactions.map(t => `
         <tr>
           <td>${t.employee_name} (${t.employee_id})</td>
-          <td>${dash(t.department)}</td>
+          <td>${dash(t.company_name)}</td>
           <td>${t.tool_name}</td>
           <td>${dash(t.borrow_date)}</td>
           <td>${dash(t.borrow_time)}</td>

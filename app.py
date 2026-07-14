@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 
 from backend.yolo.model_loader import get_model, is_model_ready
 from backend.yolo.detector import detect_tool, decode_base64_frame
+from backend.yolo.classes import normalize_class_name
 from email_utils import init_mail, send_email
 
 load_dotenv()
@@ -105,7 +106,7 @@ def _employee_context():
     return {
         'name': session.get('name'),
         'emp_id': session.get('employee_id'),
-        'department': employee.get('department') if employee else None,
+        'company_nam': employee.get('company_nam') if employee else None,
     }
 
 
@@ -303,6 +304,33 @@ def _resolve_tool_id(raw_value):
 
 
 # =====================================================================
+# MODULE 2: TOOL QR IDENTIFICATION (identify only, no borrow yet)
+# =====================================================================
+
+@app.route('/api/tool-lookup')
+def api_tool_lookup():
+    """Identifies the tool from a scanned QR code without borrowing it."""
+    if not _require_employee():
+        return jsonify({"success": False, "message": "Not logged in."}), 401
+
+    qr_code = request.args.get('qr_code', '').strip()
+    if not qr_code:
+        return jsonify({"success": False, "message": "qr_code is required."}), 400
+
+    tool = db.get_tool_by_qr_code(qr_code)
+    if not tool:
+        return jsonify({"success": False, "message": "No tool found for this QR code."}), 404
+
+    return jsonify({
+        "success": True,
+        "tool_id": tool['tool_id'],
+        "tool_name": tool['tool_name'],
+        "available_qty": tool['available_qty'],
+        "status": "Available" if tool['available_qty'] > 0 else "Out of Stock"
+    })
+
+
+# =====================================================================
 # AI VERIFICATION MODULE (QR + YOLO cross-check)
 # =====================================================================
 
@@ -324,7 +352,8 @@ def verify_tool_with_yolo(qr_code, image_data=None):
             "message": "QR code does not match any tool in the system."
         }
 
-    expected_class = tool.get('yolo_class')
+    expected_class      = tool.get('yolo_class')
+    expected_class_norm = normalize_class_name(expected_class) if expected_class else None
 
     if not is_model_ready() or not image_data or not expected_class:
         return {
@@ -358,7 +387,7 @@ def verify_tool_with_yolo(qr_code, image_data=None):
 
     detected_class = detection["class_name"]
     confidence     = detection["confidence"]
-    matched        = (detected_class == expected_class)
+    matched        = (detected_class == expected_class_norm)
 
     return {
         "matched": matched,
@@ -564,10 +593,22 @@ def api_admin_summary():
     return jsonify({"success": True, "stats": db.get_admin_stats()})
 
 
-@app.route('/api/admin/employees')
+@app.route('/api/admin/employees', methods=['GET', 'POST'])
 def api_admin_employees():
     if not _require_admin():
         return jsonify({"success": False, "message": "Not logged in."}), 401
+
+    if request.method == 'POST':
+        data = request.get_json(silent=True) or {}
+        ok, message = db.add_employee(
+            data.get('employee_id', '').strip(),
+            data.get('name', '').strip(),
+            data.get('company_name', '').strip() or None,
+            data.get('contact_no', '').strip() or None,
+            data.get('email', '').strip() or None,
+        )
+        return jsonify({"success": ok, "message": message}), (200 if ok else 400)
+
     return jsonify({"success": True, "employees": db.get_all_employees()})
 
 

@@ -3,21 +3,44 @@
 {% block content %}
 
 <div class="topbar-inline">
-  <h1>Employees</h1> 
+  <h1>Employees</h1>
   <p>Everyone registered in the system</p>
+  <button class="btn btn-primary" id="open-add-employee" style="margin-left:auto;">+ Add Employee</button>
+</div>
+
+<div class="card card-pad" id="add-employee-panel" style="display:none;margin-bottom:20px;">
+  <h3 class="section-title" style="margin-top:0;">Add Employee</h3>
+  <div class="form-row" style="display:flex;gap:10px;flex-wrap:wrap;">
+    <input type="text" id="employee-id-input" placeholder="Employee ID *" style="flex:1;min-width:140px;padding:9px 10px;border:1px solid var(--border);border-radius:8px;">
+    <input type="text" id="employee-name-input" placeholder="Name *" style="flex:1;min-width:140px;padding:9px 10px;border:1px solid var(--border);border-radius:8px;">
+    <input type="text" id="employee-company_name-input" placeholder="Company Name" style="flex:1;min-width:140px;padding:9px 10px;border:1px solid var(--border);border-radius:8px;">
+    <input type="text" id="employee-contact-input" placeholder="Contact No." style="flex:1;min-width:140px;padding:9px 10px;border:1px solid var(--border);border-radius:8px;">
+    <input type="email" id="employee-email-input" placeholder="Email" style="flex:1;min-width:140px;padding:9px 10px;border:1px solid var(--border);border-radius:8px;">
+    <button class="btn btn-primary" id="btn-add-employee">Save</button>
+  </div>
+  <p id="employee-message" class="message" style="display:none;margin-top:10px;"></p>
 </div>
 
 <div class="card">
   <div class="table-wrap">
     <table class="data">
       <thead>
-        <tr><th>Employee ID</th><th>Name</th><th>Contact No.</th></tr>
+        <tr><th>Employee ID</th><th>Name</th><th>Company Name</th><th>Contact No.</th><th>Email</th></tr>
       </thead>
       <tbody id="employees-body">
-        <tr><td colspan="3" class="empty-row">Loading…</td></tr>
+        <tr><td colspan="5" class="empty-row">Loading…</td></tr>
       </tbody>
     </table>
   </div>
 </div>
 
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.getElementById('open-add-employee').addEventListener('click', () => {
+    const panel = document.getElementById('add-employee-panel');
+    panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+  });
+</script>
 {% endblock %}

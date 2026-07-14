@@ -1,12 +1,3 @@
-"""
-Runs YOLO inference on a single camera frame and returns the best detection.
-
-Usage:
-    from backend.yolo.detector import detect_tool
-    result = detect_tool(frame)   # frame = a cv2/numpy BGR image array
-    # result = {"class_name": "hammer", "confidence": 0.97} or None
-"""
-
 from backend.yolo.model_loader import get_model
 from backend.yolo.classes import normalize_class_name
 
@@ -32,8 +23,6 @@ def detect_tool(frame, confidence_threshold=CONFIDENCE_THRESHOLD):
     if not results or len(results[0].boxes) == 0:
         return None
 
-    # Pick the box with the highest confidence (in case multiple objects
-    # are visible in frame — we only care about the one being verified)
     best_box = max(results[0].boxes, key=lambda b: float(b.conf[0]))
 
     raw_class_name = model.names[int(best_box.cls[0])]
@@ -47,8 +36,7 @@ def detect_tool(frame, confidence_threshold=CONFIDENCE_THRESHOLD):
 
 def decode_base64_frame(image_data):
     """Helper: converts a base64 data-URL (from browser camera capture)
-    into a cv2-compatible BGR frame. Used once we wire this into the
-    Flask API in Module 3."""
+    into a cv2-compatible BGR frame."""
     import base64
     import numpy as np
     import cv2

@@ -55,6 +55,16 @@
   <button class="btn btn-outline" id="btn-stop-scan" style="margin-top:14px;width:100%;justify-content:center;">Cancel Scan</button>
 </div>
 
+<div class="card card-pad" id="tool-info-card" style="display:none;max-width:420px;margin-top:14px;">
+  <div style="display:flex;align-items:center;gap:12px;">
+    <div style="width:40px;height:40px;border-radius:10px;background:var(--blue-100);display:flex;align-items:center;justify-content:center;font-size:18px;">🧰</div>
+    <div>
+      <div style="font-weight:700;font-size:14.5px;" id="tool-info-name">—</div>
+      <div style="font-size:12px;color:var(--text-500);" id="tool-info-status">—</div>
+    </div>
+  </div>
+</div>
+
 <div id="scan-message" class="message" style="display:none;"></div>
 
 {% endblock %}
@@ -67,6 +77,38 @@
     overflow: hidden;
     border-radius: 12px;
     background: #000;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+  }
+
+  #qr-reader {
+    width: 100% !important;
+    height: 100% !important;
+    position: absolute !important;
+    top: 0;
+    left: 0;
+  }
+
+  #qr-reader video {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    position: absolute !important;
+    top: 0;
+    left: 0;
+  }
+
+  #qr-reader__scan_region {
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  #qr-reader__scan_region img {
+    display: none !important;
+  }
+
+  #qr-reader__dashboard {
+    display: none !important;
   }
 
   .scanner-frame {

@@ -10,8 +10,41 @@
       overflow: hidden;
       border-radius: 12px;
       background: #000;
+      width: 100%;
+      max-width: 420px;
+      aspect-ratio: 1 / 1;
+      margin: 0 auto;
     }
 
+    #reader {
+      width: 100% !important;
+      height: 100% !important;
+      position: absolute !important;
+      top: 0;
+      left: 0;
+    }
+
+    #reader video {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+      position: absolute !important;
+      top: 0;
+      left: 0;
+    }
+
+    #reader__scan_region {
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    #reader__scan_region img {
+      display: none !important;
+    }
+
+    #reader__dashboard {
+      display: none !important;
+    }
     .scanner-frame {
       position: absolute;
       top: 50%;
