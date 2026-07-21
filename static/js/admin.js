@@ -228,7 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
   async function loadEmployees() {
     const tbody = document.getElementById('employees-body');
     if (!tbody) return;
-    tbody.innerHTML = `<tr><td colspan="5" class="empty-row">Loading…</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6" class="empty-row">Loading…</td></tr>`;
     const data = await api('/api/admin/employees');
     if (data.success && data.employees.length) {
       tbody.innerHTML = data.employees.map(e => `
@@ -238,21 +238,22 @@ document.addEventListener('DOMContentLoaded', () => {
           <td>${dash(e.company_name)}</td>
           <td>${dash(e.contact_no)}</td>
           <td>${dash(e.email)}</td>
+          <td><a class="btn btn-outline btn-sm" href="/api/admin/employees/${e.employee_id}/qr" target="_blank">View / Print QR</a></td>
         </tr>
       `).join('');
     } else {
-      tbody.innerHTML = `<tr><td colspan="5" class="empty-row">No employees found.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6" class="empty-row">No employees found.</td></tr>`;
     }
   }
 
   const btnAddEmployee = document.getElementById('btn-add-employee');
   if (btnAddEmployee) {
     btnAddEmployee.addEventListener('click', async () => {
-      const employee_id = document.getElementById('employee-id-input').value.trim();
-      const name         = document.getElementById('employee-name-input').value.trim();
+      const employee_id  = document.getElementById('employee-id-input').value.trim();
+      const name          = document.getElementById('employee-name-input').value.trim();
       const company_name  = document.getElementById('employee-company_name-input')?.value.trim() || '';
       const contact_no    = document.getElementById('employee-contact-input')?.value.trim() || '';
-      const email          = document.getElementById('employee-email-input')?.value.trim() || '';
+      const email         = document.getElementById('employee-email-input')?.value.trim() || '';
 
       if (!employee_id) return showMessage('employee-message', 'Employee ID is required.', true);
       if (!name)         return showMessage('employee-message', 'Name is required.', true);
@@ -263,12 +264,22 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       if (res.success) {
-        showMessage('employee-message', 'Employee added.', false);
+        showMessage('employee-message', res.message || 'Employee added.', false);
         document.getElementById('employee-id-input').value = '';
         document.getElementById('employee-name-input').value = '';
         if (document.getElementById('employee-company_name-input')) document.getElementById('employee-company_name-input').value = '';
         if (document.getElementById('employee-contact-input')) document.getElementById('employee-contact-input').value = '';
         if (document.getElementById('employee-email-input')) document.getElementById('employee-email-input').value = '';
+
+        const qrWrap = document.getElementById('new-emp-qr-wrap');
+        if (qrWrap) {
+          const qrUrl = `/api/admin/employees/${encodeURIComponent(employee_id)}/qr`;
+          document.getElementById('new-emp-qr-img').src = qrUrl;
+          document.getElementById('new-emp-qr-download').href = qrUrl;
+          document.getElementById('new-emp-qr-download').setAttribute('download', `${employee_id}_qr.png`);
+          qrWrap.style.display = 'block';
+        }
+
         loadEmployees();
       } else {
         showMessage('employee-message', res.message || 'Could not add employee.', true);
@@ -342,7 +353,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ---------- TRANSACTIONS ----------
- async function loadTransactions() {
+  async function loadTransactions() {
     const tbody = document.getElementById('transactions-body');
     if (!tbody) return;
     tbody.innerHTML = `<tr><td colspan="9" class="empty-row">Loading…</td></tr>`;
@@ -372,6 +383,9 @@ document.addEventListener('DOMContentLoaded', () => {
       tbody.innerHTML = `<tr><td colspan="9" class="empty-row">No matching transactions.</td></tr>`;
     }
   }
+
+  const btnApplyFilter = document.getElementById('btn-apply-filter');
+  if (btnApplyFilter) btnApplyFilter.addEventListener('click', loadTransactions);
 
   // ---------- REPORTS / EXPORT ----------
   const btnExportCsv = document.getElementById('btn-export-csv');

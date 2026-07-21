@@ -612,6 +612,24 @@ def api_admin_employees():
     return jsonify({"success": True, "employees": db.get_all_employees()})
 
 
+@app.route('/api/admin/employees/<employee_id>/qr')
+def api_admin_employee_qr(employee_id):
+    """Generates a QR code PNG that encodes the employee_id itself —
+    same value used for login scanning."""
+    if not _require_admin():
+        return jsonify({"success": False, "message": "Not logged in."}), 401
+
+    employee = db.get_employee_by_id(employee_id)
+    if not employee:
+        return jsonify({"success": False, "message": "Employee not found."}), 404
+
+    img = qrcode.make(employee['employee_id'])
+    buf = BytesIO()
+    img.save(buf, format='PNG')
+    buf.seek(0)
+    return send_file(buf, mimetype='image/png', download_name=f"{employee['employee_id']}_qr.png")
+
+
 @app.route('/api/admin/tools', methods=['GET', 'POST'])
 def api_admin_tools():
     if not _require_admin():
